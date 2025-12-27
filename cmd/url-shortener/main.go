@@ -4,6 +4,7 @@ import (
 	"log/slog"
 	"os"
 	"url-shortener/internal/config"
+	"url-shortener/internal/http-server/handlers/save"
 	mvLogger "url-shortener/internal/http-server/middleware/logger"
 	"url-shortener/internal/lib/logger/sl"
 	"url-shortener/internal/storage/sqlite"
@@ -40,6 +41,8 @@ func main() {
 	router.Use(middleware.Recoverer)
 	router.Use(middleware.URLFormat)
 	router.Use(mvLogger.New(log))
+
+	router.Post("/url", save.New(log, storage))
 }
 
 func setupLogger(env string) *slog.Logger {
