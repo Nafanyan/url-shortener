@@ -11,7 +11,7 @@ import (
 	"url-shortener/internal/http-server/handlers/save"
 	"url-shortener/internal/http-server/handlers/save/mocks"
 	sl "url-shortener/internal/lib/logger/handlers/slogdiscard"
-	"url-shortener/internal/storage/sqlite"
+	"url-shortener/internal/storage"
 
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
@@ -65,7 +65,7 @@ func TestSaveHandler(t *testing.T) {
 			respError:    "url already exists",
 			respStatus:   "Error",
 			expectedCode: http.StatusOK,
-			mockError:    sqlite.ErrURLExist,
+			mockError:    storage.ErrURLExists,
 			checkAlias:   false,
 		},
 	}

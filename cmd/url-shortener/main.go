@@ -40,7 +40,7 @@ func main() {
 	router.Use(middleware.URLFormat)
 	router.Use(mvLogger.New(log))
 
-	router.Post("/url", save.New(log, storage))
+	router.Post("/", save.New(log, storage))
 }
 
 func setupLogger(env string) *slog.Logger {
