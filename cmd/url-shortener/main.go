@@ -33,8 +33,6 @@ func main() {
 		log.Error("failed to initialize storage", sl.Err(err))
 	}
 
-	_ = storage
-
 	router := chi.NewRouter()
 
 	router.Use(middleware.RequestID)
