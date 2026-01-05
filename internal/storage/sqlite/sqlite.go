@@ -1,20 +1,24 @@
+// Package sqlite provides SQLite implementation of the storage interface.
 package sqlite
 
 import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"strings"
 	"url-shortener/internal/storage"
 
 	"github.com/mattn/go-sqlite3"
 )
 
+// Storage represents a SQLite storage implementation.
 type Storage struct {
 	db         *sql.DB
 	stmtInsert *sql.Stmt
 	stmtSelect *sql.Stmt
 }
 
+// New creates a new SQLite storage instance.
 func New(storagePath string) (*Storage, error) {
 	const op = "storage.sqlite.New"
 
@@ -46,6 +50,7 @@ func New(storagePath string) (*Storage, error) {
 	return &Storage{db, stmtInsert, stmtSelect}, nil
 }
 
+// SaveURL saves a URL with the given alias and returns the inserted ID.
 func (s *Storage) SaveURL(urlToSave, alias string) (int64, error) {
 	const op = "storage.sqlite.SaveURL"
 
@@ -66,6 +71,7 @@ func (s *Storage) SaveURL(urlToSave, alias string) (int64, error) {
 	return id, nil
 }
 
+// GetURL retrieves a URL by its alias.
 func (s *Storage) GetURL(alias string) (string, error) {
 	const op = "storage.sqlite.GetURL"
 
@@ -81,4 +87,23 @@ func (s *Storage) GetURL(alias string) (string, error) {
 	}
 
 	return resURL, nil
+}
+
+// Close closes the database connection and prepared statements.
+func (s *Storage) Close() error {
+	const op = "storage.sqlite.Close"
+	errs := make([]string, 0, 3)
+	if err := s.stmtInsert.Close(); err != nil {
+		errs = append(errs, err.Error())
+	}
+	if err := s.stmtSelect.Close(); err != nil {
+		errs = append(errs, err.Error())
+	}
+	if err := s.db.Close(); err != nil {
+		errs = append(errs, err.Error())
+	}
+	if len(errs) != 0 {
+		return fmt.Errorf("%s: %s", op, strings.Join(errs, ", "))
+	}
+	return nil
 }

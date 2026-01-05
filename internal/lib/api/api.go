@@ -1,0 +1,36 @@
+// Package api provides utilities for working with HTTP APIs.
+package api
+
+import (
+	"errors"
+	"fmt"
+	"net/http"
+)
+
+var (
+	// ErrInvalidStatusCode is returned when an HTTP response has an unexpected status code.
+	ErrInvalidStatusCode = errors.New("invalid status code")
+)
+
+// GetRedirect follows a redirect and returns the final URL.
+func GetRedirect(url string) (string, error) {
+	const op = "api.GetRedirect"
+
+	client := &http.Client{
+		CheckRedirect: func(req *http.Request, via []*http.Request) error {
+			return http.ErrUseLastResponse // stop after 1st redirect
+		},
+	}
+
+	resp, err := client.Get(url)
+	if err != nil {
+		return "", err
+	}
+	defer func() { _ = resp.Body.Close() }()
+
+	if resp.StatusCode != http.StatusFound {
+		return "", fmt.Errorf("%s: %w: %d", op, ErrInvalidStatusCode, resp.StatusCode)
+	}
+
+	return resp.Header.Get("Location"), nil
+}

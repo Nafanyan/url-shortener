@@ -8,8 +8,8 @@ import (
 	"net/http/httptest"
 	"strings"
 	"testing"
-	"url-shortener/internal/http-server/handlers/save"
-	"url-shortener/internal/http-server/handlers/save/mocks"
+	"url-shortener/internal/httpserver/handlers/url/save"
+	"url-shortener/internal/httpserver/handlers/url/save/mocks"
 	sl "url-shortener/internal/lib/logger/handlers/slogdiscard"
 	"url-shortener/internal/storage"
 

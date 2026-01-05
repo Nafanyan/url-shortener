@@ -1,3 +1,4 @@
+// Package save provides HTTP handler for saving URLs with optional aliases.
 package save
 
 import (
@@ -15,16 +16,20 @@ import (
 	"github.com/go-playground/validator/v10"
 )
 
+// Request represents the request body for saving a URL.
 type Request struct {
 	URL   string `json:"url" validate:"required,url"`
 	Alias string `json:"alias,omitempty"`
 }
 
+// Response represents the response body for saving a URL.
 type Response struct {
 	resp.Response
 	Alias string `json:"alias"`
 }
 
+// URLSaver is an interface for saving URLs.
+//
 //go:generate go run github.com/vektra/mockery/v2@v2.53.5 --name=URLSaver
 type URLSaver interface {
 	SaveURL(URL, alias string) (int64, error)
@@ -32,6 +37,7 @@ type URLSaver interface {
 
 const aliasLength = 6
 
+// New creates a new HTTP handler for saving URLs.
 func New(log *slog.Logger, urlSaver URLSaver) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		const op = "handlers.url.save.New"
@@ -56,13 +62,15 @@ func New(log *slog.Logger, urlSaver URLSaver) http.HandlerFunc {
 			log.Error("failed to decode request body", sl.Err(err))
 
 			render.JSON(w, r, resp.Error("failed to decode request"))
+
+			return
 		}
 		log.Info("request body decoded", slog.Any("req", req))
 
 		if err := validator.New().Struct(req); err != nil {
 			validateErr := err.(validator.ValidationErrors)
 
-			log.Error("invelid request", sl.Err(err))
+			log.Error("invalid request", sl.Err(err))
 			render.JSON(w, r, resp.ValidationError(validateErr))
 
 			return

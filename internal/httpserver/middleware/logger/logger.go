@@ -1,3 +1,4 @@
+// Package logger provides HTTP middleware for request logging.
 package logger
 
 import (
@@ -9,6 +10,7 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 )
 
+// New creates a new HTTP middleware for logging requests.
 func New(log *slog.Logger) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		log = log.With(
@@ -17,9 +19,8 @@ func New(log *slog.Logger) func(next http.Handler) http.Handler {
 
 		log.Info("logger middleware enabled")
 
-		// код самого обработчика
 		fn := func(w http.ResponseWriter, r *http.Request) {
-			// собираем исходную информацию о запросе
+			// Collect initial request information
 			entry := log.With(
 				slog.String("method", r.Method),
 				slog.String("path", r.URL.Path),
@@ -28,15 +29,13 @@ func New(log *slog.Logger) func(next http.Handler) http.Handler {
 				slog.String("request_id", middleware.GetReqID(r.Context())),
 			)
 
-			// создаем обертку вокруг `http.ResponseWriter`
-			// для получения сведений об ответе
+			// Wrap http.ResponseWriter to capture response details
 			ww := middleware.NewWrapResponseWriter(w, r.ProtoMajor)
 
-			// Момент получения запроса, чтобы вычислить время обработки
+			// Record request start time to calculate processing duration
 			t1 := time.Now()
 
-			// Запись отправится в лог в defer
-			// в этот момент запрос уже будет обработан
+			// Log will be written in defer after request is processed
 			defer func() {
 				entry.Info("request completed",
 					slog.Int("status", ww.Status()),
@@ -45,11 +44,10 @@ func New(log *slog.Logger) func(next http.Handler) http.Handler {
 				)
 			}()
 
-			// Передаем управление следующему обработчику в цепочке middleware
+			// Pass control to the next handler in the middleware chain
 			next.ServeHTTP(ww, r)
 		}
 
-		// Возвращаем созданный выше обработчик, приведя его к типу http.HandlerFunc
 		return http.HandlerFunc(fn)
 	}
 }

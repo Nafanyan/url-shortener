@@ -1,3 +1,4 @@
+// Package response provides types and functions for HTTP API responses.
 package response
 
 import (
@@ -7,29 +8,35 @@ import (
 	"github.com/go-playground/validator/v10"
 )
 
+// Response represents a standard API response structure.
 type Response struct {
 	Status string `json:"status"`
 	Error  string `json:"error,omitempty"`
 }
 
 const (
-	StatusOk    = "Ok"
+	// StatusOk indicates a successful response.
+	StatusOk = "Ok"
+	// StatusError indicates an error response.
 	StatusError = "Error"
 )
 
-func Error(error string) Response {
+// Error creates an error response with the given error message.
+func Error(errMsg string) Response {
 	return Response{
 		Status: StatusError,
-		Error:  error,
+		Error:  errMsg,
 	}
 }
 
+// Ok creates a successful response.
 func Ok() Response {
 	return Response{
 		Status: StatusOk,
 	}
 }
 
+// ValidationError creates an error response from validation errors.
 func ValidationError(errs validator.ValidationErrors) Response {
 	var errMsg []string
 
