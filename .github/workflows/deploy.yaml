@@ -3,7 +3,7 @@
 name: Deploy App # Name of proccess
 
 on:
-  workflow_dispatch: # Ручкой запуск
+  workflow_dispatch: # Manual trigger
     inputs:
       tag: # Need tag for deploy
         description: 'Tag to deploy'
@@ -11,14 +11,13 @@ on:
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest # ОС для runner
-    env: # Вводим переменные, которые будем использовать далее
-      HOST: root@5.188.118.195 # логин / хост сервера, на которые деплоим
-      DEPLOY_DIRECTORY: /root/apps/url-shortener # папка проекта на сервере
-      CONFIG_PATH: /root/apps/url-shortener/config/prod.yaml # конфиг сервиса на сервере
-      ENV_FILE_PATH: /root/apps/url-shortener/config.env # env-файл на сервере
-
-  steps:
+    runs-on: ubuntu-latest # OS for runner
+    env: # Set variables that will be used later
+      HOST: root@5.188.118.195 # login / host of the server we deploy to
+      DEPLOY_DIRECTORY: /root/apps/url-shortener # project folder on the server
+      CONFIG_PATH: /root/apps/url-shortener/config/prod.yaml # service config on the server
+      ENV_FILE_PATH: /root/apps/url-shortener/config.env # env file on the server
+    steps:
       - name: Checkout repository
         uses: actions/checkout@v2
         with:
